@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import Image from "next/image";
 import { Contador } from "@/components/Contador";
-
+//adsadasdas
 export default function Home() {
   const {data:session}=useSession();
 
