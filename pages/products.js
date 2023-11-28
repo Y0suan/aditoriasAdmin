@@ -3,65 +3,80 @@ import Layout from "../components/Layout";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
+export default function Products() {
+  const [products, setProducts] = useState([]);
+  const [filteredParticipants, setFilteredParticipants] = useState({});
 
-export default function Products(){
-    const [products, setProducts] = useState([]);
-    const [filteredParticipants, setFilteredParticipants] = useState({});
-  
-    useEffect(() => {
-      axios.get('/api/products').then(response => {
-        setProducts(response.data);
-      });
-    }, []);
-  
-    useEffect(() => {
-      // Filtrar participantes por representacion y crear un nuevo array por cada valor obtenido
-      const participantsByRepresentation = {};
-      products.forEach(product => {
-        if (Array.isArray(product.participants)) {
-          product.participants.forEach(participante => {
-            const { nombre, apellido, dni, representacion } = participante;
-            if (!participantsByRepresentation[representacion]) {
-              participantsByRepresentation[representacion] = [];
-            }
-            participantsByRepresentation[representacion].push({ nombre, apellido, dni, representacion });
-          });
-        }
-      });
-      setFilteredParticipants(participantsByRepresentation);
-    }, [products]);
+  useEffect(() => {
+    axios.get('/api/products').then(response => {
+      setProducts(response.data);
+    });
+  }, []);
 
-    return(
-        <Layout>
-            <Link className="btn-primary" href={'/products/new'}>
-             Crea una nueva Publicacion
-            </Link>
+  useEffect(() => {
+    const participantsByProduct = {};
+    products.forEach(product => {
+      const participants = product.participants;
+      if (Array.isArray(participants)) {
+        participants.forEach(participant => {
+          const { nombre, apellido, dni, representacion } = participant;
+          if (!participantsByProduct[product._id]) {
+            participantsByProduct[product._id] = {};
+          }
+          if (!participantsByProduct[product._id][representacion]) {
+            participantsByProduct[product._id][representacion] = [];
+          }
+          participantsByProduct[product._id][representacion].push({ nombre, apellido, dni });
+        });
+      }
+    });
+    setFilteredParticipants(participantsByProduct);
+  }, [products]);
 
-            <div className="flex flex-wrap pt-4 gap-4 h-screen max-w-full" >
-            {products.map(product => (
-                <div className="div-card"  key={product._id}>
-                    <div>
-                    <p className="subtitle" >Fecha</p>
-                    <p>{product.fecha}</p>
-                    <p className="subtitle" >Interes</p>
-                    <p>{product.interes}</p>
-                    <p className="subtitle" >Sintesis</p>
-                    <p>{product.sintesis}</p>
-                    </div>
-                    {Object.keys(filteredParticipants).map(representation => (
-        <div key={representation}>
-          <p className="subtitle" >{representation}</p>
-          <p>
-            {filteredParticipants[representation].map((participant, index) => (
-              <div key={index}>
-                <p>{participant.nombre}</p><p>{participant.apellido}</p><p>{participant.dni}</p>
-              </div>
-            ))}
-          </p>
-        </div>
-      ))}
-                    <div className="flex flex-col gap-4 justify-end">
-                    <Link className="btn-default" href={'/products/edit/'+product._id}>
+  return (
+    <Layout>
+      <Link className="btn-primary" href={'/products/new'}>
+        Crea una nueva Publicacion
+      </Link>
+
+      <div className="flex flex-wrap pt-4 gap-4 h-screen max-w-full">
+        {products.map(product => (
+          <div className="div-card" key={product._id}>
+            <div>
+              <p className="subtitle">Fecha</p>
+              <p>{product.fecha}</p>
+              <p className="subtitle">Interes</p>
+              <p>{product.interes}</p>
+              <p className="subtitle">Sintesis</p>
+              <p>{product.sintesis}</p>
+            </div>
+
+            {filteredParticipants[product._id] && (
+  <div className="flex flex-col">
+    <p className="subtitle">Representantes</p>
+    <div className="flex gap-4">
+    {Object.keys(filteredParticipants[product._id]).map(representation => (
+      <div key={representation}>
+        <p className="subtitle">{representation}</p>
+        {Array.isArray(filteredParticipants[product._id][representation]) ? (
+          filteredParticipants[product._id][representation].map((participant, index) => (
+            <div key={index}>
+              <p>{participant.nombre}</p>
+              <p>{participant.apellido}</p>
+              <p>{participant.dni}</p>
+            </div>
+          ))
+        ) : (
+          <p>No hay representantes para esta categoría</p>
+        )}
+      </div>
+    ))}
+    </div>
+  </div>
+)}
+
+            <div className="flex flex-col gap-4 justify-end">
+            <Link className="btn-default" href={'/products/edit/'+product._id}>
                                              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
                                              <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0115.75 21H5.25A2.25 2.25 0 013 18.75V8.25A2.25 2.25 0 015.25 6H10" />
                                              </svg>
@@ -73,18 +88,13 @@ export default function Products(){
                                              </svg>
                                                  
                                              </Link>
-                    </div>
-
-
-
-
-
-
-
-
-                   </div>
-                      ))}
             </div>
-        </Layout>
-    )
+          </div>
+        ))}
+      </div>
+    </Layout>
+  );
 }
+
+
+    

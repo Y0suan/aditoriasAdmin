@@ -153,7 +153,7 @@ export default function ProductForm({
       </button>
       {participants.length > 0 &&
         participants.map((participant, index) => (
-          <div className="flex  gap-1 mb-2" key={index}>
+          <div className="flex  gap-1 mb-2 wrap" key={index}>
             <input
               type="text"
               value={participant.nombre}

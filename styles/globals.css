@@ -74,7 +74,6 @@ table.basic a{
 .subtitle{
     @apply text-gray-500  text-lg;
 }
-
 .card-cont{
     @apply shadow-md w-60 h-fit p-2 flex gap-4 items-center border-blue-600 border-2 rounded-md ;
 }
@@ -84,5 +83,12 @@ table.basic a{
 .contador-cont{
     @apply flex gap-2
 }
-
+@media (max-width: 768px) {
+    .contador-cont{
+        @apply flex gap-2 pt-8 flex-wrap justify-center
+    }
+    .wrap{
+        flex-wrap: wrap;
+    }
+}
 
